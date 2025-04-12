@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - URL Indexing Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --warning-color: #fbbc05;
+            --danger-color: #ea4335;
+            --success-color: #34a853;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+            --hover-color: #f1f3f4;
+            --shadow-color: rgba(32, 33, 36, 0.1);
+        }
+
+        body {
+            font-family: 'Google Sans', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: var(--card-background);
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .navbar-brand {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .card-title {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .card-text {
+            color: var(--text-secondary);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 8px 24px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #3367d6;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-color: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-primary.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .history-card {
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--border-color);
+        }
+
+        .history-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .history-card.error {
+            border-left-color: var(--danger-color);
+        }
+
+        .history-card.skipped {
+            border-left-color: var(--warning-color);
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background-color: rgba(52, 168, 83, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-badge.error {
+            background-color: rgba(234, 67, 53, 0.1);
+            color: var(--danger-color);
+        }
+
+        .status-badge.skipped {
+            background-color: rgba(251, 188, 5, 0.1);
+            color: var(--warning-color);
+        }
+
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>
+                URL Indexing Bot
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home me-1"></i>
+                            Home
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <h2 class="card-title mb-4">
+                            <i class="fas fa-history me-2"></i>
+                            Submission History
+                        </h2>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary active" data-filter="all">
+                                    All
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-filter="success">
+                                    Success
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-filter="error">
+                                    Error
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-filter="skipped">
+                                    Skipped
+                                </button>
+                            </div>
+                            <p class="text-muted mb-0">Total: <span id="total-count">{{ total_count }}</span> records</p>
+                        </div>
+
+                        <div id="history-container">
+                            {% for item in history %}
+                            <div class="card history-card {{ item.status }}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="card-title mb-1">{{ item.url }}</h5>
+                                            <p class="card-text mb-0">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    {{ item.timestamp }}
+                                                </small>
+                                            </p>
+                                        </div>
+                                        <span class="status-badge {{ item.status }}">
+                                            {% if item.status == 'success' %}
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            {% elif item.status == 'error' %}
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% else %}
+                                            <i class="fas fa-forward me-1"></i>
+                                            {% endif %}
+                                            {{ item.status|title }}
+                                        </span>
+                                    </div>
+                                    {% if item.message %}
+                                    <p class="card-text mt-2 mb-0">{{ item.message }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div id="loading-spinner" class="text-center py-4 d-none">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted mt-2">Loading more records...</p>
+                        </div>
+
+                        <div id="no-more-records" class="text-center py-4 d-none">
+                            <p class="text-muted mb-0">No more records to load</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentFilter = 'all';
+        let hasMore = {% if has_more %}true{% else %}false{% endif %};
+        let loading = false;
+
+        // Filter buttons
+        document.querySelectorAll('[data-filter]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Update active state
+                document.querySelectorAll('[data-filter]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                // Reset and load with new filter
+                currentPage = 1;
+                currentFilter = this.dataset.filter;
+                document.getElementById('history-container').innerHTML = '';
+                document.getElementById('no-more-records').classList.add('d-none');
+                hasMore = true;
+                loadMoreItems();
+            });
+        });
+
+        // Intersection Observer for infinite scroll
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && hasMore && !loading) {
+                loadMoreItems();
+            }
+        });
+
+        observer.observe(document.getElementById('loading-spinner'));
+
+        // Load more items
+        function loadMoreItems() {
+            if (loading || !hasMore) return;
+
+            loading = true;
+            document.getElementById('loading-spinner').classList.remove('d-none');
+
+            fetch(`/api/history?page=${currentPage}&filter=${currentFilter}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        const container = document.getElementById('history-container');
+                        data.items.forEach(item => {
+                            container.appendChild(createHistoryCard(item));
+                        });
+                        currentPage++;
+                        hasMore = data.has_more;
+                        document.getElementById('total-count').textContent = data.total_count;
+                    } else {
+                        hasMore = false;
+                    }
+
+                    if (!hasMore) {
+                        document.getElementById('no-more-records').classList.remove('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading history:', error);
+                })
+                .finally(() => {
+                    loading = false;
+                    document.getElementById('loading-spinner').classList.add('d-none');
+                });
+        }
+
+        // Create history card
+        function createHistoryCard(item) {
+            const card = document.createElement('div');
+            card.className = `card history-card ${item.status}`;
+            card.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-1">${item.url}</h5>
+                            <p class="card-text mb-0">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    ${item.timestamp}
+                                </small>
+                            </p>
+                        </div>
+                        <span class="status-badge ${item.status}">
+                            ${getStatusIcon(item.status)}
+                            ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        </span>
+                    </div>
+                    ${item.message ? `<p class="card-text mt-2 mb-0">${item.message}</p>` : ''}
+                </div>
+            `;
+            return card;
+        }
+
+        // Get status icon
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'success':
+                    return '<i class="fas fa-check-circle me-1"></i>';
+                case 'error':
+                    return '<i class="fas fa-exclamation-circle me-1"></i>';
+                default:
+                    return '<i class="fas fa-forward me-1"></i>';
+            }
+        }
+    </script>
+</body>
+</html> 

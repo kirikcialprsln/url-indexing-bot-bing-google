@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İndeksleme Sonuçları</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00a4ef;
+            --secondary-color: #7fba00;
+            --warning-color: #ffb900;
+            --danger-color: #f25022;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --background-color: #f8f9fa;
+            --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--background-color) 0%, #e9ecef 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .results-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            margin: 2rem auto;
+            max-width: 1000px;
+            transition: transform var(--transition-speed);
+        }
+
+        .results-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+            border-radius: 20px 20px 0 0;
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-container {
+            border-radius: 0 0 20px 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background: var(--background-color);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 1rem;
+            white-space: nowrap;
+        }
+
+        .table td {
+            color: var(--text-secondary);
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tr:hover {
+            background-color: rgba(0, 164, 239, 0.05);
+        }
+
+        .status-badge {
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+        }
+
+        .status-indexed {
+            background-color: rgba(127, 186, 0, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .status-not-indexed {
+            background-color: rgba(255, 185, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-error {
+            background-color: rgba(242, 80, 34, 0.1);
+            color: var(--danger-color);
+        }
+
+        .status-requested {
+            background-color: rgba(0, 164, 239, 0.1);
+            color: var(--primary-color);
+        }
+
+        .btn {
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            transition: all var(--transition-speed);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #0078d4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .actions-container {
+            padding: 1.5rem;
+            border-top: 2px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .table-container {
+                padding: 1rem;
+            }
+
+            .status-badge {
+                padding: 0.4rem 0.8rem;
+            }
+
+            .actions-container {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #0078d4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="results-card">
+            <div class="card-header">
+                <h1 class="card-title">
+                    <i class="fas fa-{% if action == 'check' %}search{% else %}paper-plane{% endif %} me-2"></i>
+                    {% if action == 'check' %}
+                        İndeksleme Durumu Sonuçları
+                    {% else %}
+                        İndeksleme İstek Sonuçları
+                    {% endif %}
+                </h1>
+            </div>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Durum</th>
+                            {% if action == 'check' %}
+                                <th>Son Güncelleme</th>
+                            {% else %}
+                                <th>İstek Detayı</th>
+                            {% endif %}
+                            <th>İşlem Zamanı</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                        <tr>
+                            <td>{{ result.url }}</td>
+                            <td>
+                                <span class="status-badge status-{{ result.status.lower() }}">
+                                    {% if result.status == 'INDEXED' %}
+                                        <i class="fas fa-check-circle"></i>
+                                    {% elif result.status == 'NOT_INDEXED' %}
+                                        <i class="fas fa-clock"></i>
+                                    {% elif result.status == 'ERROR' %}
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    {% else %}
+                                        <i class="fas fa-paper-plane"></i>
+                                    {% endif %}
+                                    {{ result.status }}
+                                </span>
+                            </td>
+                            {% if action == 'check' %}
+                                <td>{{ result.last_update }}</td>
+                            {% else %}
+                                <td>
+                                    {% if result.status == 'REQUESTED' %}
+                                        <i class="fas fa-check text-success me-2"></i>İstek başarıyla gönderildi
+                                    {% elif result.status == 'ERROR' %}
+                                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>{{ result.error }}
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                            <td>{{ result.timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="actions-container">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Yeni İşlem
+                </a>
+                <a href="{{ url_for('history') }}" class="btn btn-secondary">
+                    <i class="fas fa-history"></i>
+                    Geçmiş Kontroller
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İşlem Durumu - Google İndeksleme Botu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00a4ef;
+            --secondary-color: #7fba00;
+            --warning-color: #ffb900;
+            --danger-color: #f25022;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --background-color: #f8f9fa;
+            --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--background-color) 0%, #e9ecef 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: var(--card-shadow);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 600;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-primary);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all var(--transition-speed);
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(0, 164, 239, 0.1);
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            margin: 2rem auto;
+            max-width: 800px;
+            padding: 2rem;
+            transition: transform var(--transition-speed);
+        }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .status-info {
+            background: var(--background-color);
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+        }
+        
+        .status-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: all var(--transition-speed);
+        }
+
+        .status-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-icon {
+            background: rgba(0, 164, 239, 0.1);
+            border-radius: 12px;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            height: 48px;
+            width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .status-text {
+            flex-grow: 1;
+        }
+        
+        .status-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .progress {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            height: 0.8rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, var(--primary-color), #0078d4);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+        
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            transition: all var(--transition-speed);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #0078d4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-secondary {
+            background: white;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            height: 3rem;
+            width: 3rem;
+        }
+        
+        .results-card {
+            background: var(--background-color);
+            border-radius: 15px;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .results-title {
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .action-badge {
+            background: rgba(0, 164, 239, 0.1);
+            border-radius: 30px;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .status-card {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .status-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .buttons-container {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .fa-spin {
+            animation: spin 1.5s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-robot"></i>
+                Google İndeksleme Botu
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('history') }}">
+                    <i class="fas fa-history me-2"></i>
+                    Geçmiş
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="status-card">
+            <h2 class="card-title">
+                <i class="fas fa-sync-alt fa-spin"></i>
+                İşlem Durumu
+            </h2>
+            
+            <div id="processing-status">
+                <div class="status-info">
+                    <div class="status-item">
+                        <div class="status-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="status-text">
+                            <div class="status-label">İşlem Türü</div>
+                            <div class="status-value" id="action-type">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="status-text">
+                            <div class="status-label">İlerleme</div>
+                            <div class="progress">
+                                <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div class="status-value" id="progress-text">0/0 URL işlendi</div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="status-text">
+                            <div class="status-label">Durum</div>
+                            <div class="status-value" id="status-text">İşlem başlatılıyor...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="results" style="display: none;">
+                <div class="results-card">
+                    <div class="results-title">
+                        <i class="fas fa-check-circle"></i>
+                        İşlem Tamamlandı
+                    </div>
+                    
+                    <div class="buttons-container">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Yeni İşlem
+                        </a>
+                        <a href="{{ url_for('history') }}" class="btn btn-secondary">
+                            <i class="fas fa-history"></i>
+                            Geçmiş Kontroller
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    const status = data.status;
+                    const processing = data.processing;
+                    
+                    document.getElementById('action-type').textContent = 
+                        processing.current_action === 'check' ? 'Durum Kontrolü' : 'İndeksleme İsteği';
+                    
+                    const progress = (processing.processed_urls / processing.total_urls) * 100;
+                    document.getElementById('progress-bar').style.width = `${progress}%`;
+                    document.getElementById('progress-text').textContent = 
+                        `${processing.processed_urls}/${processing.total_urls} URL işlendi`;
+                    
+                    if (status === 'success') {
+                        document.getElementById('status-text').textContent = 'İşlem başarıyla tamamlandı!';
+                        document.getElementById('processing-status').style.display = 'none';
+                        document.getElementById('results').style.display = 'block';
+                    } else if (status === 'error') {
+                        document.getElementById('status-text').textContent = `Hata: ${data.data}`;
+                        document.getElementById('processing-status').style.display = 'none';
+                        document.getElementById('results').style.display = 'block';
+                    } else {
+                        document.getElementById('status-text').textContent = 'İşlem devam ediyor...';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('status-text').textContent = 'Durum güncellenirken hata oluştu';
+                });
+        }
+        
+        setInterval(updateStatus, 2000);
+        updateStatus();
+    </script>
+</body>
+</html> 

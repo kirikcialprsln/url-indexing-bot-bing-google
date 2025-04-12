@@ -145,5 +145,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: example@email.com 
+- GitHub: @kirikcialprsln
+- Email: kirikci.alprsln@gmail.com
